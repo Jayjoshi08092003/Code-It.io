@@ -1,23 +1,42 @@
 import streamlit as st
-from login import login_page
-from signup import signup_page
-from home import home_page
+import sqlite3
 
-st.set_page_config(page_title="Code It.io", layout="centered")
+# Connect to database
+conn = sqlite3.connect("users.db", check_same_thread=False)
+c = conn.cursor()
 
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-if "user_email" not in st.session_state:
-    st.session_state.user_email = ""
+# Create user table
+def create_table():
+    c.execute('''CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        password TEXT NOT NULL
+    )''')
+    conn.commit()
 
-page = st.sidebar.selectbox("Go to", ["Login", "Signup", "Home"])
+# Insert user
+def add_user(name, email, password):
+    c.execute('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', (name, email, password))
+    conn.commit()
 
-if page == "Login":
-    login_page()
-elif page == "Signup":
-    signup_page()
-elif page == "Home":
-    if st.session_state.logged_in:
-        home_page()
-    else:
-        st.warning("Please log in to view your dashboard.")
+# Fetch users
+def get_users():
+    c.execute('SELECT * FROM users')
+    return c.fetchall()
+
+# Streamlit UI
+st.title("User Registration App")
+create_table()
+
+name = st.text_input("Name")
+email = st.text_input("Email")
+password = st.text_input("Password", type="password")
+
+if st.button("Register"):
+    add_user(name, email, password)
+    st.success("User registered successfully!")
+
+if st.checkbox("Show All Users"):
+    users = get_users()
+    st.write(users)
