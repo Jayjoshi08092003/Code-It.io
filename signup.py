@@ -1,25 +1,24 @@
 import streamlit as st
-import pandas as pd
-import os
+from db import add_user, create_users_table
 
 def signup_page():
     st.header("📝 Signup")
 
+    create_users_table()
+
+    name = st.text_input("Full Name")
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
+    phone = st.text_input("Phone")
+    age = st.number_input("Age", min_value=1, max_value=120)
+    address = st.text_area("Address")
 
     if st.button("Create Account"):
-        if email and password:
-            if os.path.exists("users.csv"):
-                df = pd.read_csv("users.csv")
-                if email in df["email"].values:
-                    st.warning("Email already registered. Please login.")
-                    return
+        if name and email and password and phone and address:
+            success = add_user(name, email, password, phone, age, address)
+            if success:
+                st.success("Account created! You can now log in.")
             else:
-                df = pd.DataFrame(columns=["email", "password"])
-
-            df = df.append({"email": email, "password": password}, ignore_index=True)
-            df.to_csv("users.csv", index=False)
-            st.success("Account created successfully! Now go to Login.")
+                st.error("Email already exists.")
         else:
-            st.warning("Please enter both email and password.")
+            st.warning("Please fill all fields.")

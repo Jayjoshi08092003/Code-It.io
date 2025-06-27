@@ -5,3 +5,16 @@ matplotlib
 seaborn
 scikit-learn
 plotly
+sqlite3
+requests
+beutifulsoup4
+flask
+flask_sqlalchemy
+flask_login
+flask_wtf
+wtforms
+email_validator
+pyhton-dotenv
+pytest
+pytest-cov
+
