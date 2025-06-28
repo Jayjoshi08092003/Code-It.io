@@ -1,42 +1,36 @@
 import streamlit as st
-import sqlite3
+from db import create_user_table
+from login import login_page
+from signup import signup_page
+from home import home_page
 
-# Connect to database
-conn = sqlite3.connect("users.db", check_same_thread=False)
-c = conn.cursor()
+# App Configuration
+st.set_page_config(page_title="Code It.io", layout="wide")
 
-# Create user table
-def create_table():
-    c.execute('''CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT NOT NULL,
-        password TEXT NOT NULL
-    )''')
-    conn.commit()
+# Initialize the DB table
+create_user_table()
 
-# Insert user
-def add_user(name, email, password):
-    c.execute('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', (name, email, password))
-    conn.commit()
+# Initialize session states
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+if "user_email" not in st.session_state:
+    st.session_state.user_email = ""
+if "user_name" not in st.session_state:
+    st.session_state.user_name = ""
+if "user_language" not in st.session_state:
+    st.session_state.user_language = ""
 
-# Fetch users
-def get_users():
-    c.execute('SELECT * FROM users')
-    return c.fetchall()
+# Sidebar Navigation
+st.sidebar.title("📘 Code It.io Navigation")
+page = st.sidebar.radio("Choose a page:", ["Login", "Signup", "Home"])
 
-# Streamlit UI
-st.title("User Registration App")
-create_table()
-
-name = st.text_input("Name")
-email = st.text_input("Email")
-password = st.text_input("Password", type="password")
-
-if st.button("Register"):
-    add_user(name, email, password)
-    st.success("User registered successfully!")
-
-if st.checkbox("Show All Users"):
-    users = get_users()
-    st.write(users)
+# Page Routing
+if page == "Login":
+    login_page()
+elif page == "Signup":
+    signup_page()
+elif page == "Home":
+    if st.session_state.logged_in:
+        home_page()
+    else:
+        st.warning("🔒 Please log in to view your dashboard.")

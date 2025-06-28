@@ -1,31 +1,18 @@
 import streamlit as st
-from db import get_all_users
+from db import get_user_by_email
 
 def home_page():
-    st.header("🏠 Dashboard")
-
-    st.success(f"Logged in as: {st.session_state.user_email}")
-
-    # View users (admin dashboard)
-    st.subheader("📋 Registered Users")
-    users = get_all_users()
-
-    if users:
-        for user in users:
-            st.markdown(f"""
-                **Name:** {user[0]}  
-                **Email:** {user[1]}  
-                **Phone:** {user[2]}  
-                **Age:** {user[3]}  
-                **Address:** {user[4]}  
-                **Signed Up On:** {user[5]}  
-                ---
-            """)
+    st.title("🏠 Central Home Page")
+    email = st.session_state.get("user_email")
+    if email:
+        user = get_user_by_email(email)
+        if user:
+            st.markdown(f"### 👋 Welcome, {user[1]} ({user[2]})")
+            st.markdown(f"**Preferred Language:** {user[4]}")
+            st.markdown(f"**Joined On:** {user[5]}")
+        else:
+            st.error("User not found. Please login again.")
     else:
-        st.info("No users registered yet.")
-
-    if st.button("Logout"):
-        st.session_state.logged_in = False
-        st.session_state.user_email = ""
-        st.success("You have been logged out.")
-        st.experimental_rerun()
+        st.warning("Please log in to access your home page.")
+    st.markdown("---")
+    st.markdown("### 📚 Available Features")

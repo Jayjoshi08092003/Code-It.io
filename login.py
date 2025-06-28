@@ -1,20 +1,17 @@
 import streamlit as st
-from db import verify_user, create_users_table
+from db import get_user_by_email_and_password
 
 def login_page():
-    st.header("🔐 Login")
+    st.subheader("Login")
+    email = st.text_input("Email", key="login_email")
+    password = st.text_input("Password", type="password", key="login_password")
 
-    create_users_table()
-
-    email = st.text_input("Email")
-    password = st.text_input("Password", type="password")
-
-    if st.button("Login"):
-        user = verify_user(email, password)
+    if st.button("Login", key="login_button"):
+        user = get_user_by_email_and_password(email, password)
         if user:
             st.session_state.logged_in = True
-            st.session_state.user_email = email
-            st.success(f"Welcome, {email}!")
+            st.session_state.user_email = user[2]
+            st.success(f"Welcome {user[1]}!")
         else:
-            st.error("Invalid email or password.")
+            st.error("Invalid credentials.")
 
