@@ -25,6 +25,5 @@ c.execute('''
 conn.commit()
 conn.close()
 
-import os
-print("Current working directory:", os.getcwd())
+
 
